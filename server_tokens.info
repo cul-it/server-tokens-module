@@ -1,0 +1,6 @@
+name = "Server Tokens"
+description = "Provide tokens [server:HTTP_REFERER] and [server:HTTP_USER_AGENT]"
+package = "Cornell University Library"
+core = 7.x
+
+dependencies[] = token
