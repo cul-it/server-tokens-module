@@ -59,8 +59,6 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
           break;
 
         case 'context':
-          $context = drupal_get_destination();
-          $fields = array();
           parse_str($_SERVER['QUERY_STRING'],$fields);
           if (!empty($fields['destination'])) {
             $destination = $fields['destination'];
@@ -68,6 +66,11 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
             if (strpos($destination, $prefix) === 0) {
               $context = 'https://newcatalog.library.cornell.edu/' . substr($destination, strlen($prefix));
             }
+          }
+          if (empty($context)) {
+            $dest = drupal_get_destination();
+            $path = $dest['destination'];
+            $context = url($path, array('absolute' => TRUE));
           }
           $replacements[$original] = filter_xss($context);
           break;
