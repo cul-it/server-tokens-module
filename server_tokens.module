@@ -22,6 +22,11 @@ function server_tokens_token_info() {
     'description' => t("Var from _SERVER"),
   );
 
+  $info['tokens']['server']['context'] = array(
+    'name' => t('Feedback Context'),
+    'description' => t("URL based on destination"),
+  );
+
   return $info;
 }
 
@@ -51,6 +56,20 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
           if ($sanitize) {
             $replacements[$original] = filter_xss($replacements[$original]);
           }
+          break;
+
+        case 'context':
+          $context = drupal_get_destination();
+          $fields = array();
+          parse_str($_SERVER['QUERY_STRING'],$fields);
+          if (!empty($fields['destination'])) {
+            $destination = $fields['destination'];
+            $prefix = 'catalog/';
+            if (strpos($destination, $prefix) === 0) {
+              $context = 'https://newcatalog.library.cornell.edu/' . substr($destination, strlen($prefix));
+            }
+          }
+          $replacements[$original] = filter_xss($context);
           break;
       }
     }
