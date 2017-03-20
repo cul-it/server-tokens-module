@@ -22,6 +22,11 @@ function server_tokens_token_info() {
     'description' => t("Var from _SERVER"),
   );
 
+  $info['tokens']['server']['context'] = array(
+    'name' => t('Feedback Context'),
+    'description' => t("URL based on destination"),
+  );
+
   return $info;
 }
 
