@@ -59,6 +59,7 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
           break;
 
         case 'context':
+          $context = '';
           parse_str($_SERVER['QUERY_STRING'],$fields);
           if (!empty($fields['destination'])) {
             $destination = $fields['destination'];
