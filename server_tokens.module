@@ -59,12 +59,21 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
           break;
 
         case 'context':
+          $context = '';
           parse_str($_SERVER['QUERY_STRING'],$fields);
           if (!empty($fields['destination'])) {
             $destination = $fields['destination'];
             $prefix = 'catalog/';
             if (strpos($destination, $prefix) === 0) {
               $context = 'https://newcatalog.library.cornell.edu/' . substr($destination, strlen($prefix));
+            }
+          }
+          else {
+            $url = $_SERVER['HTTP_HOST'] . request_uri();
+            $destination_catalog = '?destination=catalog/';
+            if (($pos = strpos($url, $dest)) !== FALSE) {
+                $path = substr($url, $pos + strlen($dest));
+                $context = 'https://newcatalog.library.cornell.edu/' . $path;
             }
           }
           if (empty($context)) {
