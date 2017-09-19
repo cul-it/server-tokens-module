@@ -81,7 +81,10 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
             $path = $dest['destination'];
             $context = url($path, array('absolute' => TRUE));
           }
-          $replacements[$original] = filter_xss($context);
+          else {
+            $context = check_url($context);
+          }
+          $replacements[$original] = $context;
           break;
       }
     }
