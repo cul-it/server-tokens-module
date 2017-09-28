@@ -38,6 +38,7 @@ function server_tokens_token_info() {
 function server_tokens_tokens($type, $tokens, array $data = array(), array $options = array()) {
   $replacements = array();
   $sanitize = !empty($options['sanitize']);
+  $newcatalog = "https://newcatalog-int.library.cornell.edu/";
 
   // Text format tokens.
   if ($type == 'server') {
@@ -65,7 +66,7 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
             $destination = $fields['destination'];
             $prefix = 'catalog/';
             if (strpos($destination, $prefix) === 0) {
-              $context = 'https://newcatalog.library.cornell.edu/' . substr($destination, strlen($prefix));
+              $context = $newcatalog . substr($destination, strlen($prefix));
             }
           }
           else {
@@ -73,7 +74,7 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
             $destination_catalog = '?destination=catalog/';
             if (($pos = strpos($url, $destination_catalog)) !== FALSE) {
                 $path = substr($url, $pos + strlen($destination_catalog));
-                $context = 'https://newcatalog.library.cornell.edu/' . $path;
+                $context = $newcatalog . $path;
             }
           }
           if (empty($context)) {
