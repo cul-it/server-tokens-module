@@ -1,4 +1,8 @@
 <?php
+
+define("NEWCATALOG", 'https://newcatalog-int.library.cornell.edu/');
+define("CATALOGQUERY", 'qnewcatalog');
+
 /**
  * Implements hook_token_info().
  *
@@ -38,7 +42,7 @@ function server_tokens_token_info() {
 function server_tokens_tokens($type, $tokens, array $data = array(), array $options = array()) {
   $replacements = array();
   $sanitize = !empty($options['sanitize']);
-  $newcatalog = "https://newcatalog-int.library.cornell.edu/";
+  $newcatalog = NEWCATALOG;
 
   // Text format tokens.
   if ($type == 'server') {
