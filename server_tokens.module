@@ -70,15 +70,9 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
             $destination = $fields['destination'];
             $prefix = 'catalog/';
             if (strpos($destination, $prefix) === 0) {
-              $context = $newcatalog . substr($destination, strlen($prefix));
-            }
-          }
-          else {
-            $url = $_SERVER['HTTP_HOST'] . request_uri();
-            $destination_catalog = '?destination=catalog/';
-            if (($pos = strpos($url, $destination_catalog)) !== FALSE) {
-                $path = substr($url, $pos + strlen($destination_catalog));
-                $context = $newcatalog . $path;
+              $context = $newcatalog . $destination;
+              // Drupal will gobble up the q= parameter, so temporarily change it's name
+              $context = server_tokens_rename_query_parameter($context, 'q', CATALOGQUERY);
             }
           }
           if (empty($context)) {
