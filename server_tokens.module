@@ -94,12 +94,51 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
 }
 
 /**
- * Implements hook_form_alter.
+ * Implements hook_drupal_goto_alter
  *
  */
-function server_tokens_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'webform_client_form_221') {
-    //dpm($form_state, 'submitted');
-    dpm($form['submitted'], 'form-submitted');
+function server_tokens_drupal_goto_alter(&$path, &$options, &$http_response_code) {
+  dpm($path, 'goto alter');
+  if (strpos($path, NEWCATALOG) === 0) {
+    dpm($path, 'server_tokens_drupal_goto_alter path');
+    $path = server_tokens_rename_query_parameter($path, CATALOGQUERY, 'q');
+    dpm($path, 'server_tokens_drupal_goto_alter path after modification');
   }
+}
+
+/**
+ * changes the name of one query parameter to a different name
+ * @param  string $url     URL with query string
+ * @param  string $oldname name of query parameter to change
+ * @param  string $newname new name for parameter
+ * @return string          URL with parameter name replaced
+ */
+function server_tokens_rename_query_parameter($url, $oldname, $newname) {
+  $url_out = $url;
+  $pieces = parse_url($url);
+  if (!empty($pieces['query'])) {
+    parse_str($pieces['query'], $query);
+    if (!empty($query["$oldname"])) {
+      $query["$newname"] = $query["$oldname"];
+      unset($query["$oldname"]);
+      $pieces['query'] = http_build_query($query);
+      $url_out = server_tokens_unparse_url($pieces);
+      dpm("$url_out", 'url corrected');
+    }
+  }
+  return $url_out;
+}
+
+function server_tokens_unparse_url($parsed_url) {
+  // from http://php.net/manual/en/function.parse-url.php#106731
+  $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
+  $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+  $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
+  $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
+  $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
+  $pass     = ($user || $pass) ? "$pass@" : '';
+  $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+  $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+  $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
+  return "$scheme$user$pass$host$port$path$query$fragment";
 }
