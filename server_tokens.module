@@ -71,7 +71,7 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
             $destination = $fields[CULDESTINATION];
             $prefix = 'catalog/';
             if (strpos($destination, $prefix) === 0) {
-              $context = $newcatalog . $destination;
+              $context = $newcatalog . substr($destination, strlen($prefix));
               // Drupal will gobble up the q= parameter, so temporarily change it's name
               $context = server_tokens_rename_query_parameter($context, 'q', CATALOGQUERY);
             }
