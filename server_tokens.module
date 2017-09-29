@@ -2,6 +2,7 @@
 
 define("NEWCATALOG", 'https://newcatalog-int.library.cornell.edu/');
 define("CATALOGQUERY", 'qnewcatalog');
+define("CULDESTINATION", 'culdestination');
 
 /**
  * Implements hook_token_info().
@@ -66,8 +67,8 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
         case 'context':
           $context = '';
           parse_str($_SERVER['QUERY_STRING'],$fields);
-          if (!empty($fields['destination'])) {
-            $destination = $fields['destination'];
+          if (!empty($fields[CULDESTINATION])) {
+            $destination = $fields[CULDESTINATION];
             $prefix = 'catalog/';
             if (strpos($destination, $prefix) === 0) {
               $context = $newcatalog . $destination;
