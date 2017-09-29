@@ -94,3 +94,13 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
   return $replacements;
 }
 
+/**
+ * Implements hook_form_alter.
+ *
+ */
+function server_tokens_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'webform_client_form_221') {
+    //dpm($form_state, 'submitted');
+    dpm($form['submitted'], 'form-submitted');
+  }
+}
