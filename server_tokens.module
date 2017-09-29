@@ -81,7 +81,8 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
             $context = url($path, array('absolute' => TRUE));
           }
           else {
-            $context = check_url($context);
+            //$context = check_url($context);
+            dpm($context, 'checked context');
           }
           $replacements[$original] = $context;
           break;
