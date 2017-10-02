@@ -43,7 +43,6 @@ function server_tokens_token_info() {
 function server_tokens_tokens($type, $tokens, array $data = array(), array $options = array()) {
   $replacements = array();
   $sanitize = !empty($options['sanitize']);
-  $newcatalog = NEWCATALOG;
 
   // Text format tokens.
   if ($type == 'server') {
@@ -71,7 +70,7 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
             $destination = $fields[CULDESTINATION];
             $prefix = 'catalog/';
             if (strpos($destination, $prefix) === 0) {
-              $context = $newcatalog . substr($destination, strlen($prefix));
+              $context = NEWCATALOG . substr($destination, strlen($prefix));
               // Drupal will gobble up the q= parameter, so temporarily change it's name
               $context = server_tokens_rename_query_parameter($context, 'q', CATALOGQUERY);
             }
