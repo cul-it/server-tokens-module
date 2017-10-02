@@ -1,4 +1,9 @@
 <?php
+
+define("NEWCATALOG", 'https://newcatalog.library.cornell.edu/');
+define("CATALOGQUERY", 'catalogq');
+define("CULDESTINATION", 'catalogdestination');
+
 /**
  * Implements hook_token_info().
  *
@@ -61,28 +66,19 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
         case 'context':
           $context = '';
           parse_str($_SERVER['QUERY_STRING'],$fields);
-          if (!empty($fields['destination'])) {
-            $destination = $fields['destination'];
+          if (!empty($fields[CULDESTINATION])) {
+            $destination = $fields[CULDESTINATION];
             $prefix = 'catalog/';
             if (strpos($destination, $prefix) === 0) {
-              $context = 'https://newcatalog.library.cornell.edu/' . substr($destination, strlen($prefix));
-            }
-          }
-          else {
-            $url = $_SERVER['HTTP_HOST'] . request_uri();
-            $destination_catalog = '?destination=catalog/';
-            if (($pos = strpos($url, $dest)) !== FALSE) {
-                $path = substr($url, $pos + strlen($dest));
-                $context = 'https://newcatalog.library.cornell.edu/' . $path;
+              $context = NEWCATALOG . substr($destination, strlen($prefix));
+              // Drupal will gobble up the q= parameter, so temporarily change it's name
+              $context = server_tokens_rename_query_parameter($context, 'q', CATALOGQUERY);
             }
           }
           if (empty($context)) {
             $dest = drupal_get_destination();
             $path = $dest['destination'];
             $context = url($path, array('absolute' => TRUE));
-          }
-          else {
-            $context = check_url($context);
           }
           $replacements[$original] = $context;
           break;
@@ -93,3 +89,61 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
   return $replacements;
 }
 
+/**
+ * Implements hook_drupal_goto_alter
+ *
+ */
+function server_tokens_drupal_goto_alter(&$path, &$options, &$http_response_code) {
+  if (strpos($path, NEWCATALOG) === 0) {
+    // when redirecting to newcatalog, change any catalogq parameter back to it's original q
+    $path = server_tokens_rename_query_parameter($path, CATALOGQUERY, 'q');
+  }
+}
+
+/**
+ * changes the name of one query parameter to a different name
+ * @param  string $url     URL with query string
+ * @param  string $oldname name of query parameter to change
+ * @param  string $newname new name for parameter
+ * @return string          URL with parameter name replaced
+ */
+function server_tokens_rename_query_parameter($url, $oldname, $newname) {
+  $url_out = $url;
+  $pieces = parse_url($url);
+  if (!empty($pieces['query'])) {
+    parse_str($pieces['query'], $query);
+    if (!empty($query["$oldname"])) {
+      $query["$newname"] = $query["$oldname"];
+      unset($query["$oldname"]);
+      $pieces['query'] = http_build_query($query);
+      $url_out = server_tokens_unparse_url($pieces);
+    }
+  }
+  return $url_out;
+}
+
+function server_tokens_unparse_url($parsed_url) {
+  // from http://php.net/manual/en/function.parse-url.php#106731
+  $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
+  $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+  $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
+  $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
+  $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
+  $pass     = ($user || $pass) ? "$pass@" : '';
+  $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+  $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+  $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
+  return "$scheme$user$pass$host$port$path$query$fragment";
+}
+
+/**
+ * Implements hook_form_alter.
+ *
+ */
+function server_tokens_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'webform_client_form_221') {
+    // feedback form - use the context form field for the redirect destination
+    unset($_REQUEST['destination']);
+    $form_state['redirect'] = $form['submitted']['context']['#value'];
+  }
+}
