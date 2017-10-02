@@ -1,8 +1,8 @@
 <?php
 
 define("NEWCATALOG", 'https://newcatalog-int.library.cornell.edu/');
-define("CATALOGQUERY", 'qnewcatalog');
-define("CULDESTINATION", 'culdestination');
+define("CATALOGQUERY", 'catalogq');
+define("CULDESTINATION", 'catalogdestination');
 
 /**
  * Implements hook_token_info().
