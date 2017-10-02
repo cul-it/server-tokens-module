@@ -1,6 +1,6 @@
 <?php
 
-define("NEWCATALOG", 'https://newcatalog-int.library.cornell.edu/');
+define("NEWCATALOG", 'https://newcatalog.library.cornell.edu/');
 define("CATALOGQUERY", 'catalogq');
 define("CULDESTINATION", 'catalogdestination');
 
