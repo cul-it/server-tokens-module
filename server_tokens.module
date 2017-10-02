@@ -1,8 +1,8 @@
 <?php
 
-define("NEWCATALOG", 'https://newcatalog-int.library.cornell.edu/');
-define("CATALOGQUERY", 'qnewcatalog');
-define("CULDESTINATION", 'culdestination');
+define("NEWCATALOG", 'https://newcatalog.library.cornell.edu/');
+define("CATALOGQUERY", 'catalogq');
+define("CULDESTINATION", 'catalogdestination');
 
 /**
  * Implements hook_token_info().
@@ -43,7 +43,6 @@ function server_tokens_token_info() {
 function server_tokens_tokens($type, $tokens, array $data = array(), array $options = array()) {
   $replacements = array();
   $sanitize = !empty($options['sanitize']);
-  $newcatalog = NEWCATALOG;
 
   // Text format tokens.
   if ($type == 'server') {
@@ -71,7 +70,7 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
             $destination = $fields[CULDESTINATION];
             $prefix = 'catalog/';
             if (strpos($destination, $prefix) === 0) {
-              $context = $newcatalog . substr($destination, strlen($prefix));
+              $context = NEWCATALOG . substr($destination, strlen($prefix));
               // Drupal will gobble up the q= parameter, so temporarily change it's name
               $context = server_tokens_rename_query_parameter($context, 'q', CATALOGQUERY);
             }
@@ -80,10 +79,6 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
             $dest = drupal_get_destination();
             $path = $dest['destination'];
             $context = url($path, array('absolute' => TRUE));
-          }
-          else {
-            //$context = check_url($context);
-            dpm($context, 'checked context');
           }
           $replacements[$original] = $context;
           break;
@@ -99,11 +94,9 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
  *
  */
 function server_tokens_drupal_goto_alter(&$path, &$options, &$http_response_code) {
-  dpm($path, 'goto alter');
   if (strpos($path, NEWCATALOG) === 0) {
-    dpm($path, 'server_tokens_drupal_goto_alter path');
+    // when redirecting to newcatalog, change any catalogq parameter back to it's original q
     $path = server_tokens_rename_query_parameter($path, CATALOGQUERY, 'q');
-    dpm($path, 'server_tokens_drupal_goto_alter path after modification');
   }
 }
 
@@ -124,7 +117,6 @@ function server_tokens_rename_query_parameter($url, $oldname, $newname) {
       unset($query["$oldname"]);
       $pieces['query'] = http_build_query($query);
       $url_out = server_tokens_unparse_url($pieces);
-      dpm("$url_out", 'url corrected');
     }
   }
   return $url_out;
@@ -150,14 +142,8 @@ function server_tokens_unparse_url($parsed_url) {
  */
 function server_tokens_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'webform_client_form_221') {
-    //dpm($form_state, 'submitted');
-
-    dpm($_REQUEST['destination'], 'request destination');
+    // feedback form - use the context form field for the redirect destination
     unset($_REQUEST['destination']);
-    dpm($form['#redirect'], 'form redirect');
-
-    dpm($form['submitted']['context']['#value'], 'context value');
     $form_state['redirect'] = $form['submitted']['context']['#value'];
-    dpm($form_state['redirect'], 'form_state redirect');
   }
 }
