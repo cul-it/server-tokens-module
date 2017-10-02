@@ -95,6 +95,7 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
  */
 function server_tokens_drupal_goto_alter(&$path, &$options, &$http_response_code) {
   if (strpos($path, NEWCATALOG) === 0) {
+    // when redirecting to newcatalog, change any catalogq parameter back to it's original q
     $path = server_tokens_rename_query_parameter($path, CATALOGQUERY, 'q');
   }
 }
@@ -141,6 +142,7 @@ function server_tokens_unparse_url($parsed_url) {
  */
 function server_tokens_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'webform_client_form_221') {
+    // feedback form - use the context form field for the redirect destination
     unset($_REQUEST['destination']);
     $form_state['redirect'] = $form['submitted']['context']['#value'];
   }
