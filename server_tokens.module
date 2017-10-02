@@ -80,10 +80,6 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
             $path = $dest['destination'];
             $context = url($path, array('absolute' => TRUE));
           }
-          else {
-            //$context = check_url($context);
-            dpm($context, 'checked context');
-          }
           $replacements[$original] = $context;
           break;
       }
@@ -98,11 +94,8 @@ function server_tokens_tokens($type, $tokens, array $data = array(), array $opti
  *
  */
 function server_tokens_drupal_goto_alter(&$path, &$options, &$http_response_code) {
-  dpm($path, 'goto alter');
   if (strpos($path, NEWCATALOG) === 0) {
-    dpm($path, 'server_tokens_drupal_goto_alter path');
     $path = server_tokens_rename_query_parameter($path, CATALOGQUERY, 'q');
-    dpm($path, 'server_tokens_drupal_goto_alter path after modification');
   }
 }
 
@@ -123,7 +116,6 @@ function server_tokens_rename_query_parameter($url, $oldname, $newname) {
       unset($query["$oldname"]);
       $pieces['query'] = http_build_query($query);
       $url_out = server_tokens_unparse_url($pieces);
-      dpm("$url_out", 'url corrected');
     }
   }
   return $url_out;
@@ -149,14 +141,7 @@ function server_tokens_unparse_url($parsed_url) {
  */
 function server_tokens_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'webform_client_form_221') {
-    //dpm($form_state, 'submitted');
-
-    dpm($_REQUEST['destination'], 'request destination');
     unset($_REQUEST['destination']);
-    dpm($form['#redirect'], 'form redirect');
-
-    dpm($form['submitted']['context']['#value'], 'context value');
     $form_state['redirect'] = $form['submitted']['context']['#value'];
-    dpm($form_state['redirect'], 'form_state redirect');
   }
 }
